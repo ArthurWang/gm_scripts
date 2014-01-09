@@ -4,13 +4,7 @@
 // @description Get Listening Score from NHCE
 // @include     /.*/manager/faculty07/.*control-online.php$/
 // @version     0.1
-// @grant       GM_registerMenuCommand
 // ==/UserScript==
-
-// TODO  add a progress bar
-// TODO  add a button on page
-
-
 
 // store student's uuid and name
 var gStudentArray = null;
@@ -20,6 +14,8 @@ var gListeningScoreTable = null;
 
 // store class info for output info
 var gClassInfo = null;
+
+var gButton = null;
 
 function getStudentInfo() {
     if (gStudentArray == null) {
@@ -129,17 +125,21 @@ function getListeningScore() {
     
     // send request to get score for every student 
     for (var i = 0; i < gStudentArray.length; i++) {
-    //for (var i = 0; i < 2; i++) {
+    //for (var i = 0; i < 3; i++) {
         console.log("************************************");
         console.log("             No. %d/%d", i + 1, gStudentArray.length);
         console.log("************************************");
-
+        
+        updateProgress(Math.round((i/gStudentArray.length) * 100));
+        
         xhr.open('POST', postURL, false);
         xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
         // form data 
         params = 'UserID=' + gStudentArray[i] + '&' + 'UnitID=ALL&TestID=ALL&Submit=Submit';
         xhr.send(params);
     }
+
+    updateProgress(100);
     
     // show result
     var resultWindow = window.open('');
@@ -147,7 +147,19 @@ function getListeningScore() {
     resultWindow.document.body.innerHTML = gListeningScoreTable.outerHTML;
 }
 
-function tmpDebug() {
+function updateProgress(progressVal) {
+    if (progressVal < 100) {
+        gButton.innerHTML = '运行中: ' + progressVal + '%';
+    } else {
+        gButton.disabled = '';
+        gButton.innerHTML = '听力成绩统计';
+    }
+}
+
+function doClick() {
+    gButton = document.getElementById ("myButton");
+    gButton.disabled = 'disabled';
+    gButton.innerHTML = '开始运行: 0%';
     try {
         getListeningScore();
     } catch(e) {
@@ -155,4 +167,11 @@ function tmpDebug() {
     }
 }
 
-GM_registerMenuCommand('Get Listening Score from NHCE', tmpDebug)
+function addButton() {
+    var div = document.createElement ('div');
+    div.innerHTML = '<button  id="myButton" type="button" style="position:absolute; left:45%;" >听力成绩统计</button>';
+    document.body.appendChild(div);
+    document.getElementById ("myButton").addEventListener ("click", doClick, false);
+}
+
+addButton();
