@@ -87,6 +87,9 @@ function doReponse(responseText) {
     for (var j = 1; j < tdList.length; j++) {
         newTD = document.createElement('td');
         newText =  document.createTextNode(tdList[j].innerHTML.replace(/&nbsp;/g, ''));
+        // change the score to 10分制
+        var tmpText =  newText.textContent.replace(/\%/g, '');
+        newText.textContent = Math.round(tmpText/10);
         newTD.appendChild(newText);
         newTR.appendChild(newTD);
     }
@@ -125,7 +128,7 @@ function getListeningScore() {
     
     // send request to get score for every student 
     for (var i = 0; i < gStudentArray.length; i++) {
-    //for (var i = 0; i < 3; i++) {
+    //for (var i = 0; i < 1; i++) {
         console.log("************************************");
         console.log("             No. %d/%d", i + 1, gStudentArray.length);
         console.log("************************************");
