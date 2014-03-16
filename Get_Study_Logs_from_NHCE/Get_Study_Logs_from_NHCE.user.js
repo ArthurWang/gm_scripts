@@ -4,7 +4,6 @@
 // @description    Get Study Logs from NHCE
 // @include        /.*manager/faculty07/onlineclass.php$/
 // @version        0.1
-// @grant          GM_registerMenuCommand
 // ==/UserScript==
 
 // store all urls for every student's log info
@@ -226,6 +225,8 @@ function getLog() {
         console.log("             No. %d/%d", i + 1, gURLs[1].length);
         console.log("************************************");
 
+        updateProgress(Math.round(((i + gURLs[0].length)/(gURLs[0].length*2)) * 100));
+
         xhr.open('GET', gURLs[0][i], false);
         xhr.overrideMimeType("text/html;charset=gb2312");
         xhr.send();
@@ -257,6 +258,8 @@ function getLogDetail() {
         console.log("             No. %d/%d", i + 1, gURLs[1].length);
         console.log("************************************");
 
+        updateProgress(Math.round((i/(gURLs[1].length*2)) * 100));
+
         xhr.open('GET', gURLs[1][i], false);
         xhr.overrideMimeType("text/html;charset=gb2312");
         xhr.send();
@@ -265,14 +268,17 @@ function getLogDetail() {
 }
 
 function displayResult() {
+    // get time
+    var d = new Date();
+    
     // show info on new page
-    showResultWindow('上网时间统计表 ' + gClassInfo, gOnlineTimeTable);
+    showResultWindow('上网时间统计表 ' + gClassInfo + ' ' + d.toLocaleString(), gOnlineTimeTable);
 
     // show info on new page
-    showResultWindow('页面情况统计表 ' + gClassInfo, gWebPageTable);
+    showResultWindow('页面情况统计表 ' + gClassInfo + ' ' + d.toLocaleString(), gWebPageTable);
 
     // show info on new page
-    showResultWindow('分月统计表 ' + gClassInfo, gMonthTable);
+    showResultWindow('分月统计表 ' + gClassInfo + ' ' + d.toLocaleString(), gMonthTable);
 }
 
 // main function
@@ -286,13 +292,27 @@ function getStudyLogs() {
     
     // send request to get log info
     getLog();
+
+    updateProgress(100);
     
     displayResult();
     
 }
 
-// debug only
-function tmpDebug() {
+
+function updateProgress(progressVal) {
+    if (progressVal < 100) {
+        gButton.innerHTML = '运行中: ' + progressVal + '%';
+    } else {
+        gButton.disabled = '';
+        gButton.innerHTML = '听力成绩统计';
+    }
+}
+
+function doClick() {
+    gButton = document.getElementById ("myButton");
+    gButton.disabled = 'disabled';
+    gButton.innerHTML = '开始运行: 0%';
     try {
         getStudyLogs();
     } catch(e) {
@@ -300,4 +320,13 @@ function tmpDebug() {
     }
 }
 
-GM_registerMenuCommand('Get Study Logs from NHCE', tmpDebug)
+function addButton() {
+    var div = document.createElement ('div');
+    div.innerHTML = '<button  id="myButton" type="button" style="position:absolute; left:45%;" >上网日志统计</button>';
+    document.body.appendChild(div);
+    document.getElementById ("myButton").addEventListener ("click", doClick, false);
+}
+
+addButton();
+
+//GM_registerMenuCommand('Get Study Logs from NHCE', tmpDebug)
