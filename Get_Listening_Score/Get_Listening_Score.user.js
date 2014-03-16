@@ -17,6 +17,8 @@ var gClassInfo = null;
 
 var gButton = null;
 
+var hasTitle = 0;
+
 function getStudentInfo() {
     if (gStudentArray == null) {
         gStudentArray = new Array();
@@ -31,6 +33,31 @@ function getStudentInfo() {
     }
 }
 
+function addTitle(tr) {
+    if (hasTitle == 0) {
+        // 添加标题 
+        var newTR = document.createElement('tr');
+        var newTD = document.createElement('td');
+        var newText = document.createTextNode('学号');
+        newTD.appendChild(newText);
+        newTR.appendChild(newTD);
+        newTD = document.createElement('td');
+        newText =  document.createTextNode('姓名');
+        newTD.appendChild(newText);
+        newTR.appendChild(newTD);
+       
+       var tdList = tr.getElementsByTagName('a');
+        for (var j = 0; j < tdList.length; j++) {
+            //console.log(tdList[j].innerHTML.replace(/ /g, ''));
+            newTD = document.createElement('td');
+            newText = document.createTextNode(tdList[j].innerHTML.replace(/ /g, ''));
+            newTD.appendChild(newText);
+            newTR.appendChild(newTD);
+        }
+        gListeningScoreTable.appendChild(newTR);
+        hasTitle = 1;
+    }
+}
 
 function doReponse(responseText) {
    
@@ -82,6 +109,10 @@ function doReponse(responseText) {
     newTR.appendChild(newTD);
 
     var trList = tableList[6].getElementsByTagName('tr');
+
+    // add title in first record
+    addTitle(trList[0]);
+
     // last record contain score
     var tdList = trList[trList.length - 1].getElementsByTagName('td');
     for (var j = 1; j < tdList.length; j++) {
@@ -128,7 +159,7 @@ function getListeningScore() {
     
     // send request to get score for every student 
     for (var i = 0; i < gStudentArray.length; i++) {
-    //for (var i = 0; i < 1; i++) {
+    //for (var i = 0; i < 2; i++) {
         console.log("************************************");
         console.log("             No. %d/%d", i + 1, gStudentArray.length);
         console.log("************************************");
@@ -146,7 +177,9 @@ function getListeningScore() {
     
     // show result
     var resultWindow = window.open('');
-    resultWindow.document.title = '详细成绩统计表' + ' '+ gClassInfo;
+    // get time
+    var d = new Date();
+    resultWindow.document.title = '详细成绩统计表' + ' '+ gClassInfo + ' ' + d.toLocaleString();
     resultWindow.document.body.innerHTML = gListeningScoreTable.outerHTML;
 }
 
